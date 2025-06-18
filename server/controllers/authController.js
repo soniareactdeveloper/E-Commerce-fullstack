@@ -204,7 +204,7 @@ const updateUser = async (req, res) => {
 
 
       // Upload an image
-      const uploadResult = await cloudinary.uploader.upload(req.file.path)
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, { folder: "User"})
       existingUser.avatar = uploadResult.url
       fs.unlinkSync(req.file.path)
     }
