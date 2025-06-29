@@ -15,6 +15,11 @@ const createCategory = async (req, res) => {
     const uploadResult = await cloudinary.uploader.upload(req.file?.path, { folder: "Categories"})
     fs.unlinkSync(req.file.path)
 
+    // find existing cateogry 
+    const existingCategory = await categorySchema.find({ name: { $regex: `${name}`, $options: "i" } })
+    if(existingCategory) return console.log(existingCategory)
+
+
     // Save to DB
     const category = new categorySchema({
       name,
