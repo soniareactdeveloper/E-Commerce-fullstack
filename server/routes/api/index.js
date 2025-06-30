@@ -1,9 +1,11 @@
 const express = require("express")
 const router = express.Router()
 const authRouter = require("../api/auth")
-const productRouter = require("../api/product")
+const categoryRouter = require("./category")
+const productRouter = require("./product")
 
 router.use("/auth", authRouter)
+router.use("/category", categoryRouter)
 router.use("/product", productRouter)
 
 
