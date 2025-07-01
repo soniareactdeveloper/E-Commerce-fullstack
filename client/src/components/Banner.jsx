@@ -3,10 +3,10 @@ import { Link } from "react-router";
 const Banner = () => {
   return (
     <section
-      className="w-full h-[500px] md:h-[600px] lg:h-[716px] bg-cover bg-center bg-no-repeat flex justify-center lg:justify-end items-center px-4 md:px-8"
+      className="w-full h-[500px] md:h-[600px] lg:h-[716px] bg-cover bg-center bg-no-repeat flex justify-center lg:justify-end items-center px-4 md:px-8 "
       style={{ backgroundImage: "url('/images/banner.png')" }}
     >
-      <div className="w-full max-w-[645px] h-auto lg:h-[413px] bg-[#FFF3E3] rounded-md px-6 md:px-10 lg:px-[52px] pt-8 md:pt-[40px] pb-12 md:pb-16">
+      <div className="scale-up-left w-full max-w-[645px] h-auto lg:h-[413px] bg-[#FFF3E3] rounded-md px-6 md:px-10 lg:px-[52px] pt-8 md:pt-[40px] pb-12 md:pb-16">
         <h2 className="font-poppins font-semibold text-sm md:text-base tracking-[2px] md:tracking-[3px] mb-2">
           New Arrival
         </h2>
