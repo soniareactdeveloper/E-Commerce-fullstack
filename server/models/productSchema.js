@@ -14,6 +14,10 @@ const productSchema = new Schema({
     type: Number,
     required: true
   },
+  discount: {
+    type: Number,
+    default: 0, 
+  },
   quantity: {
     type: Number,
     default: 0
@@ -42,17 +46,18 @@ const productSchema = new Schema({
       name: {
         type: String,
         enum: ['size', 'color'],
-        // required: true
+        lowercase: true,
+        required: true
       },
       options: [
         {
           colorName: { 
             type: String,
-            // required : true
+            required : true
           },
           size: {
              type: String,
-            //  required : true
+             required : true
           },
           additionalPrice: { 
             type: Number, 
