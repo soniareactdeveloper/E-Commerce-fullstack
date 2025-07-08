@@ -1,65 +1,61 @@
 const productSchema = require("../models/productSchema");
 const cloudinary = require("../helpers/cloudinary");
 const fs = require("fs");
+const generateSlug = require("../helpers/slug");
 
 const createProduct = async (req, res) => {
   try {
     const { title, description, price, quantity, category } = req.body;
-    const variants = JSON.parse(req.body.variants);
+     const variants = JSON.parse(req.body.variants);
+
 
     // Validate required fields
     if (!title) return res.status(400).json({ message: "Title is required." });
-    if (!description)
-      return res.status(400).json({ message: "Description is required." });
+    if (!description) return res.status(400).json({ message: "Description is required." });
     if (!price) return res.status(400).json({ message: "Price is required." });
-    if (!quantity)
-      return res.status(400).json({ message: "Quantity is required." });
-    if (!category)
-      return res.status(400).json({ message: "Category is required." });
+    if (!quantity) return res.status(400).json({ message: "Quantity is required." });
+    if (!category) return res.status(400).json({ message: "Category is required." });
+
+    const slug = generateSlug(title)
+    
+
     if (!variants || !Array.isArray(variants) || variants.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Variants are required and must be an array." });
+      return res.status(400).json({ message: "Variants are required and must be an array." });
     }
 
-    //  varient validation
-    variants.forEach((item) => {
+    // Validate variants using for...of loop
+    for (const item of variants) {
       if (!["color", "size"].includes(item.name)) {
         return res.status(400).json({
-          message:
-            "Invalid variant name. Allowed names are 'color' and 'size'.",
+          message: "Invalid variant name. Allowed names are 'color' and 'size'.",
         });
       }
 
-      // color variant validation
-      if (
-        item.name === "color" &&
-        !item.options.every((option) => option.colorName)
-      ) {
+      if (item.name === "color" && !item.options.every(option => option.colorName)) {
         return res.status(400).json({
           message: "Color variant must have a colorName for each option.",
         });
       }
 
-      // size variant validation
-      if (
-        item.name === "size" &&
-        !item.options.every((option) => option.size)
-      ) {
+      if (item.name === "size" && !item.options.every(option => option.size)) {
         return res.status(400).json({
           message: "Size variant must have a size for each option.",
         });
       }
-    });
+    }
 
-    // images upload handling
-    let primeImg
-    if(req.files.primeImg && req.files.primeImg.length > 0) {
-      const uploadResult = await cloudinary.uploader.upload(req.files.primeImg[0].path, { folder: "Products" });
+    // Upload prime image
+    let primeImg;
+    if (req.files.primeImg && req.files.primeImg.length > 0) {
+      const uploadResult = await cloudinary.uploader.upload(
+        req.files.primeImg[0].path,
+        { folder: "Products" }
+      );
       fs.unlinkSync(req.files.primeImg[0].path);
       primeImg = uploadResult.url;
     }
 
+    // Upload other images
     let images = [];
     if (req.files.images && req.files.images.length > 0) {
       for (const file of req.files.images) {
@@ -69,6 +65,7 @@ const createProduct = async (req, res) => {
       }
     }
 
+    // Save product
     const product = new productSchema({
       title,
       description,
@@ -86,6 +83,7 @@ const createProduct = async (req, res) => {
       message: "Product created successfully",
       data: product,
     });
+
   } catch (error) {
     res.status(500).json({
       message: "Failed to create product",
@@ -94,8 +92,16 @@ const createProduct = async (req, res) => {
   }
 };
 
+
+// update Product
+const updateproduct = async(req, res) => {
+   const { title, description, price, quantity, category, varients } = req.body;
+}
+
+
+
 const getProduct = async (req, res) => {
-  res.send("get product");
+ const {} = req.body;
 };
 
 module.exports = { createProduct, getProduct };
