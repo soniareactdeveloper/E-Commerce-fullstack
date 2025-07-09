@@ -5,39 +5,56 @@ const generateSlug = require("../helpers/slug");
 
 const createProduct = async (req, res) => {
   try {
-    const { title, description, price, quantity, category } = req.body;
-     const variants = JSON.parse(req.body.variants);
+    const { title, description, price, quantity, category} =
+      req.body;
+    const variants = req.body.variants ? JSON.parse(req.body.variants) : [];
 
 
     // Validate required fields
     if (!title) return res.status(400).json({ message: "Title is required." });
-    if (!description) return res.status(400).json({ message: "Description is required." });
+    if (!description)
+      return res.status(400).json({ message: "Description is required." });
     if (!price) return res.status(400).json({ message: "Price is required." });
-    if (!quantity) return res.status(400).json({ message: "Quantity is required." });
-    if (!category) return res.status(400).json({ message: "Category is required." });
+    if (!quantity)
+      return res.status(400).json({ message: "Quantity is required." });
+    if (!category)
+      return res.status(400).json({ message: "Category is required." });
 
-    const slug = generateSlug(title)
-    
+    const slug = generateSlug(title);
+    const existingProduct = await productSchema.findOne({ slug: slug });
+    if (existingProduct)
+      return res
+        .status(400)
+        .json({ message: "A product with this title already exist" });
 
     if (!variants || !Array.isArray(variants) || variants.length === 0) {
-      return res.status(400).json({ message: "Variants are required and must be an array." });
+      return res
+        .status(400)
+        .json({ message: "Variants are required and must be an array." });
     }
 
     // Validate variants using for...of loop
     for (const item of variants) {
       if (!["color", "size"].includes(item.name)) {
         return res.status(400).json({
-          message: "Invalid variant name. Allowed names are 'color' and 'size'.",
+          message:
+            "Invalid variant name. Allowed names are 'color' and 'size'.",
         });
       }
 
-      if (item.name === "color" && !item.options.every(option => option.colorName)) {
+      if (
+        item.name === "color" &&
+        !item.options.every((option) => option.colorName)
+      ) {
         return res.status(400).json({
           message: "Color variant must have a colorName for each option.",
         });
       }
 
-      if (item.name === "size" && !item.options.every(option => option.size)) {
+      if (
+        item.name === "size" &&
+        !item.options.every((option) => option.size)
+      ) {
         return res.status(400).json({
           message: "Size variant must have a size for each option.",
         });
@@ -59,7 +76,9 @@ const createProduct = async (req, res) => {
     let images = [];
     if (req.files.images && req.files.images.length > 0) {
       for (const file of req.files.images) {
-        const uploadResult = await cloudinary.uploader.upload(file.path, { folder: "Products" });
+        const uploadResult = await cloudinary.uploader.upload(file.path, {
+          folder: "Products",
+        });
         fs.unlinkSync(file.path);
         images.push(uploadResult.url);
       }
@@ -70,6 +89,7 @@ const createProduct = async (req, res) => {
       title,
       description,
       price,
+      slug,
       quantity,
       category,
       variants,
@@ -83,7 +103,6 @@ const createProduct = async (req, res) => {
       message: "Product created successfully",
       data: product,
     });
-
   } catch (error) {
     res.status(500).json({
       message: "Failed to create product",
@@ -92,16 +111,59 @@ const createProduct = async (req, res) => {
   }
 };
 
-
 // update Product
-const updateproduct = async(req, res) => {
-   const { title, description, price, quantity, category, varients } = req.body;
-}
+const updateproduct = async (req, res) => {
+  try {
+    const { title, description, price, quantity, category, variants } = req.body;
+    const { slug } = req.params;
+
+    const existingProduct = await productSchema.findOne({ slug: slug });
+
+    if (!existingProduct) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    if (title) existingProduct.title = title;
+    if (description) existingProduct.description = description;
+    if (price) existingProduct.price = price;
+    if (quantity) existingProduct.quantity = quantity;
+    if (category) existingProduct.category = category;
+    if (variants && variants.length > 0) existingProduct.variants = variants;
+
+    if (req?.files?.primeImg?.length > 0) {
+      for (const item of req.files.primeImg) {
+        // Delete old image from cloudinary
+        await cloudinary.uploader.destroy(
+        existingProduct.primeImg.split("/").pop().split(".")[0]
+      );
+
+        // Upload new image
+        const result = await cloudinary.uploader.upload(item.path, {
+          folder: "product",
+        });
+
+        // Remove uploaded file from server
+        fs.unlinkSync(item.path);
+
+        // Update image URL
+        existingProduct.primeImg = result.secure_url;
+      }
+    }
+
+    await existingProduct.save();
+
+    res.status(200).json({ message: "Product updated successfully", product: existingProduct });
 
 
-
-const getProduct = async (req, res) => {
- const {} = req.body;
+  } catch (error) {
+    console.error("Update Product Error:", error);
+    res.status(500).json({ message: "Something went wrong", error: error.message });
+  }
 };
 
-module.exports = { createProduct, getProduct };
+// get product
+const getProduct = async (req, res) => {
+  const {} = req.body;
+};
+
+module.exports = { createProduct, updateproduct, getProduct };
