@@ -1,7 +1,7 @@
-import { Link } from "react-router"; 
+import { Link } from "react-router";
 import { IoIosArrowForward } from "react-icons/io";
 
-const ShopBanner = () => {
+const ShopBanner = ({ title = "Shop" }) => {
   return (
     <div className="relative w-full h-[316px] flex justify-center items-center overflow-hidden">
       {/* Blurred Background Image */}
@@ -15,7 +15,7 @@ const ShopBanner = () => {
 
       {/* Foreground Content */}
       <h1 className="relative flex flex-col justify-center items-center font-poppins font-bold text-[#000] text-[32px] sm:text-[36px] md:text-[40px] z-10 text-center">
-        Shop
+        {title}
         <span className="block mt-2">
           <Link
             to="/"
@@ -23,8 +23,8 @@ const ShopBanner = () => {
           >
             <span className="group-hover:text-purple-800 transition">Home</span>
             <IoIosArrowForward className="group-hover:translate-x-1 transition-transform duration-300 text-gray-800" />
-            <span className="font-light underline-offset-2  transition">
-              Shop
+            <span className="font-light underline-offset-2 transition">
+              {title}
             </span>
           </Link>
         </span>

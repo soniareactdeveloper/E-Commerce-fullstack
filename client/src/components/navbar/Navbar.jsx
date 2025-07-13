@@ -46,7 +46,7 @@ const Navbar = () => {
             <li>
               <Link
                 className="font-poppins font-medium text-[16px] text-black transition-colors duration-300 hover:text-yellow-600"
-                to="/"
+                to="/about"
               >
                 About
               </Link>
@@ -54,7 +54,7 @@ const Navbar = () => {
             <li>
               <Link
                 className="font-poppins font-medium text-[16px] text-black transition-colors duration-300 hover:text-yellow-600"
-                to="/"
+                to="/contact"
               >
                 Contact
               </Link>

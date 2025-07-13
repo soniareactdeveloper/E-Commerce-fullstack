@@ -1,22 +1,42 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router"; 
 import { FaFacebookF, FaInstagram, FaTwitter, FaStar } from "react-icons/fa";
+
 
 import img1 from "../../assets/photos/product1.png";
 import img2 from "../../assets/photos/product2.png";
 import img3 from "../../assets/photos/product3.png";
 import img4 from "../../assets/photos/product4.png";
+import CartDrawer from "../Cart/CartDrawer";
 
 const DescriptionBanner = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState("gold");
   const [selectedSize, setSelectedSize] = useState("L");
+  const [mainImage, setMainImage] = useState(img1);
+
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+
+  const handleAddToCart = () => {
+    const newItem = {
+      name: "Asgaard sofa",
+      price: 250000,
+      quantity,
+      image: img1,
+    };
+    setCartItems((prev) => [...prev, newItem]);
+    setCartOpen(true);
+  };
+
+  const handleRemoveItem = (indexToRemove) => {
+    setCartItems((prev) => prev.filter((_, i) => i !== indexToRemove));
+  };
 
   const productImages = [img1, img2, img3, img4];
-  const [mainImage, setMainImage] = useState(productImages[0]);
 
   return (
-    <div className=" bg-[#fdfdfd] mb-[66px]">
+    <div className="bg-[#fdfdfd] mb-[66px] relative">
       {/* Breadcrumb Navigation */}
       <div className="w-full mx-auto mb-8 text-sm bg-[#F9F1E7] p-5 text-gray-500 flex items-center gap-2">
         <Link to="/" className="hover:underline hover:text-[#B88E2F]">
@@ -30,10 +50,9 @@ const DescriptionBanner = () => {
         <span className="text-black font-medium">Asgaard sofa</span>
       </div>
 
-      <div className="max-w-7xl px-10  mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div className="max-w-7xl px-5 md:px-10 mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Left: Images */}
         <div className="flex gap-6">
-          {/* Thumbnails */}
           <div className="flex flex-col gap-4">
             {productImages.map((img, i) => (
               <img
@@ -47,7 +66,6 @@ const DescriptionBanner = () => {
               />
             ))}
           </div>
-          {/* Main Image */}
           <div className="flex-1">
             <img
               src={mainImage}
@@ -104,7 +122,7 @@ const DescriptionBanner = () => {
           <div className="mb-4">
             <h4 className="text-sm font-semibold mb-2">Color</h4>
             <div className="flex gap-3">
-              {[ 
+              {[
                 { name: "purple", color: "#816DFA" },
                 { name: "black", color: "#000000" },
                 { name: "gold", color: "#B88E2F" },
@@ -124,7 +142,7 @@ const DescriptionBanner = () => {
           </div>
 
           {/* Quantity + Buttons */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-8 flex-wrap">
             <div className="flex items-center border rounded">
               <button
                 className="px-3 py-1 text-xl"
@@ -140,9 +158,14 @@ const DescriptionBanner = () => {
                 +
               </button>
             </div>
-            <button className="px-6 py-2 bg-[#B88E2F] text-white rounded shadow hover:bg-[#a57a1f] transition">
+
+            <button
+              onClick={handleAddToCart}
+              className="px-6 py-2 bg-[#B88E2F] text-white rounded shadow hover:bg-[#a57a1f] transition"
+            >
               Add To Cart
             </button>
+
             <button className="px-6 py-2 border border-black text-black rounded hover:bg-gray-100">
               + Compare
             </button>
@@ -168,6 +191,14 @@ const DescriptionBanner = () => {
           </div>
         </div>
       </div>
+
+      {/* Cart Drawer */}
+      <CartDrawer
+        isOpen={cartOpen}
+        onClose={() => setCartOpen(false)}
+        cartItems={cartItems}
+        onRemove={handleRemoveItem}
+      />
     </div>
   );
 };
