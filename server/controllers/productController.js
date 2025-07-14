@@ -2,13 +2,12 @@ const productSchema = require("../models/productSchema");
 const cloudinary = require("../helpers/cloudinary");
 const fs = require("fs");
 const generateSlug = require("../helpers/slug");
+const { buildSearchQuery } = require("../helpers/searchRegex");
 
 const createProduct = async (req, res) => {
   try {
-    const { title, description, price, quantity, category} =
-      req.body;
+    const { title, description, price, quantity, category } = req.body;
     const variants = req.body.variants ? JSON.parse(req.body.variants) : [];
-
 
     // Validate required fields
     if (!title) return res.status(400).json({ message: "Title is required." });
@@ -114,7 +113,8 @@ const createProduct = async (req, res) => {
 // update Product
 const updateproduct = async (req, res) => {
   try {
-    const { title, description, price, quantity, category, variants } = req.body;
+    const { title, description, price, quantity, category, variants } =
+      req.body;
     const { slug } = req.params;
 
     const existingProduct = await productSchema.findOne({ slug: slug });
@@ -134,8 +134,8 @@ const updateproduct = async (req, res) => {
       for (const item of req.files.primeImg) {
         // Delete old image from cloudinary
         await cloudinary.uploader.destroy(
-        existingProduct.primeImg.split("/").pop().split(".")[0]
-      );
+          existingProduct.primeImg.split("/").pop().split(".")[0]
+        );
 
         // Upload new image
         const result = await cloudinary.uploader.upload(item.path, {
@@ -152,18 +152,51 @@ const updateproduct = async (req, res) => {
 
     await existingProduct.save();
 
-    res.status(200).json({ message: "Product updated successfully", product: existingProduct });
-
-
+    res
+      .status(200)
+      .json({
+        message: "Product updated successfully",
+        product: existingProduct,
+      });
   } catch (error) {
     console.error("Update Product Error:", error);
-    res.status(500).json({ message: "Something went wrong", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.message });
   }
 };
-
-// get product
+// Get products with search and pagination
 const getProduct = async (req, res) => {
-  const {} = req.body;
+  try {
+    const search = req.query.search || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const query = buildSearchQuery(search);
+    const totalProducts = await productSchema.countDocuments(); 
+    const totalPages = Math.ceil(totalProducts / limit);
+    const skip = (page - 1) * limit;
+
+    const products = await productSchema.find(query).skip(skip).limit(limit);
+
+    const hasPrevPage = page > 1;
+    const hasNextPage = page < totalPages;
+
+    res.send({
+      products,
+      totalProducts,
+      totalPages,
+      limit,
+      page,
+      hasPrevPage,
+      hasNextPage,
+      prevPage: hasPrevPage ? page - 1 : null,
+      nextPage: hasNextPage ? page + 1 : null,
+    });
+  } catch (error) {
+    res.status(500).send({ error: "Server Error" });
+  }
 };
+;
 
 module.exports = { createProduct, updateproduct, getProduct };
