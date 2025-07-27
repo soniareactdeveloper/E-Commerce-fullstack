@@ -7,6 +7,8 @@ const {
 } = require("../../controllers/productController");
 const router = express.Router();
 const upload = require("../../helpers/multer");
+const authMiddleware = require("../../middlewares/authMiddleware");
+const roleMiddleware = require("../../middlewares/roleMiddleware");
 
 router.post(
   "/create-product",
