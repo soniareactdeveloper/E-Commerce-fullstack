@@ -3,7 +3,9 @@ const cloudinary = require("../helpers/cloudinary");
 const fs = require("fs");
 const generateSlug = require("../helpers/slug");
 const { buildSearchQuery } = require("../helpers/searchRegex");
+const categorySchema = require("../models/categorySchema");
 
+// create Product
 const createProduct = async (req, res) => {
   try {
     const { title, description, price, quantity, category } = req.body;
@@ -111,7 +113,7 @@ const createProduct = async (req, res) => {
 };
 
 // update Product
-const updateproduct = async (req, res) => {
+const updateProduct = async (req, res) => {
   try {
     const { title, description, price, quantity, category, variants } =
       req.body;
@@ -152,12 +154,10 @@ const updateproduct = async (req, res) => {
 
     await existingProduct.save();
 
-    res
-      .status(200)
-      .json({
-        message: "Product updated successfully",
-        product: existingProduct,
-      });
+    res.status(200).json({
+      message: "Product updated successfully",
+      product: existingProduct,
+    });
   } catch (error) {
     console.error("Update Product Error:", error);
     res
@@ -165,19 +165,58 @@ const updateproduct = async (req, res) => {
       .json({ message: "Something went wrong", error: error.message });
   }
 };
+
 // Get products with search and pagination
 const getProduct = async (req, res) => {
   try {
     const search = req.query.search || "";
+    const categoryName = req.query.category || "";
+    const status = req.query.status || "";
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
+    // 1. Start with the search query (based on product title)
     const query = buildSearchQuery(search);
-    const totalProducts = await productSchema.countDocuments(); 
+
+    // 2. Filter by status if provided
+    if (status) {
+      query.status = status;
+    }
+
+    // 3. If category name is provided, fetch its _id and add to query
+    if (categoryName.trim()) {
+      const category = await categorySchema.findOne({
+        name: { $regex: new RegExp(categoryName.trim(), "i") },
+      });
+
+      if (category) {
+        query.category = category._id;
+      } else {
+        return res.send({
+          products: [],
+          totalProducts: 0,
+          totalPages: 0,
+          limit,
+          page,
+          hasPrevPage: false,
+          hasNextPage: false,
+          prevPage: null,
+          nextPage: null,
+        });
+      }
+    }
+
+    // 4. Pagination logic
+    const totalProducts = await productSchema.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
     const skip = (page - 1) * limit;
 
-    const products = await productSchema.find(query).skip(skip).limit(limit);
+    // 5. Fetch products with populated category
+    const products = await productSchema
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .populate("category");
 
     const hasPrevPage = page > 1;
     const hasNextPage = page < totalPages;
@@ -194,9 +233,29 @@ const getProduct = async (req, res) => {
       nextPage: hasNextPage ? page + 1 : null,
     });
   } catch (error) {
+    console.error("Error in getProduct:", error);
     res.status(500).send({ error: "Server Error" });
   }
 };
-;
 
-module.exports = { createProduct, updateproduct, getProduct };
+// delete product
+const deleteProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const deletedProduct = await productSchema.findByIdAndDelete(productId);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Product deleted successfully", deletedProduct });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { createProduct, updateProduct, getProduct, deleteProduct };
