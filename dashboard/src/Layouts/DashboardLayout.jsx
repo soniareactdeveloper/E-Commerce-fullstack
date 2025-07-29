@@ -5,7 +5,7 @@ import TopNavbar from "../Components/Navbar/TopNavbar";
 const DashboardLayout = () => {
   return (
     <div className="flex h-screen flex-col">
-      {/* Fixed Top Navbar */}
+      {/* Top Navbar */}
       <div className="fixed top-0 left-0 right-0 z-50">
         <TopNavbar />
       </div>
