@@ -4,7 +4,7 @@ import { FaEllipsisV } from "react-icons/fa";
 
 const StatCard = ({ title, amount, percentage, iconColor, textColor }) => {
   return (
-    <div className="bg-white shadow-md rounded-xl p-4 w-full sm:w-[220px] max-w-xs">
+    <div className="bg-white shadow-md rounded-xl p-4 w-full sm:w-[220px] max-w-xs mx-auto">
       {/* Title + 3 Dots */}
       <div className="flex items-center justify-between mb-2">
         <span className="text-gray-500 font-medium">{title}</span>

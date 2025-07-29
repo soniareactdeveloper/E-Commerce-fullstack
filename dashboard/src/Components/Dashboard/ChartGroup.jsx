@@ -1,4 +1,3 @@
-// ChartGroup.js
 import React from "react";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import {
@@ -79,7 +78,7 @@ const ChartGroup = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "right", // ✅ Label beside pie chart
+        position: "right",
         labels: {
           color: "#374151",
           boxWidth: 16,
@@ -95,23 +94,25 @@ const ChartGroup = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-3 flex-wrap justify-center mt-[90px]">
-      {/* Market Overview - Bar Chart */}
-      <div className="bg-white p-4 shadow-md rounded-lg w-full max-w-[290px] h-[360px]">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">Market Overview</h3>
-        <Bar data={barData} options={commonOptions} />
-      </div>
+    <div className="flex justify-center px-4 sm:px-8 py-10">
+      <div className="flex flex-wrap justify-center gap-6 max-w-7xl w-full">
+        {/* Market Overview - Bar Chart */}
+        <div className="bg-white p-5 shadow-lg rounded-xl w-full sm:w-[290px] h-[360px]">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Market Overview</h3>
+          <Bar data={barData} options={commonOptions} />
+        </div>
 
-      {/* Visits by Source - Pie Chart */}
-      <div className="bg-white p-4 shadow-md rounded-lg w-full max-w-[290px] h-[360px]">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">Visits by Source</h3>
-        <Pie data={pieData} options={pieOptions} />
-      </div>
+        {/* Visits by Source - Pie Chart */}
+        <div className="bg-white p-5 shadow-lg rounded-xl w-full sm:w-[290px] h-[360px]">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Visits by Source</h3>
+          <Pie data={pieData} options={pieOptions} />
+        </div>
 
-      {/* Market Revenue - Line Chart */}
-      <div className="bg-white p-4 shadow-md rounded-lg w-full max-w-[290px] h-[360px]">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">Market Revenue</h3>
-        <Line data={lineData} options={commonOptions} />
+        {/* Market Revenue - Line Chart */}
+        <div className="bg-white p-5 shadow-lg rounded-xl w-full sm:w-[280px] h-[360px]">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Market Revenue</h3>
+          <Line data={lineData} options={commonOptions} />
+        </div>
       </div>
     </div>
   );

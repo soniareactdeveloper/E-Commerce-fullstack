@@ -104,7 +104,7 @@ const Dashboard = () => {
   return (
    <section>
 
-     <div className="min-h-screen bg-gray-50">
+     <div className="min-h-screen p-4 bg-gray-50">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h2>
 
       {/* Stat Cards */}
